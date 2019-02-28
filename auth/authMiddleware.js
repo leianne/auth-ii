@@ -11,7 +11,17 @@ const checkUserInfo = (req, res, next) => {
 }
 
 const restricted = (req, res, next) => {
- console.log(req.headers.authorization)
+    const token = req.headers.authorization;
+    if(token){
+        jwt.verify(token, secret, (err, decodedToken) => {
+            if(decodedToken){
+                req.decodedJWT = decodedToken;
+                next();
+            } else {
+                res.status(401).json({message: "Please try again"});
+            }
+        })
+    }
 }
 
 const generateToken = (user) => {
@@ -19,7 +29,7 @@ const generateToken = (user) => {
         subject: user.id,
         username: user.username
     }
-    const options ={
+    const options = {
         expiresIn: "1d"
     }
     return jwt.sign(payload, secret, options)
