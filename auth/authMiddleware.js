@@ -1,4 +1,8 @@
-const checkRegisterInfo = (req, res, next) => {
+const jwt = require('jsonwebtoken');
+
+const secret = process.env.SECRET || 'Hey its a secrect'
+
+const checkUserInfo = (req, res, next) => {
     if(req.body.username && req.body.password){
         next()
     } else {
@@ -6,4 +10,19 @@ const checkRegisterInfo = (req, res, next) => {
     }
 }
 
-module.exports = { checkRegisterInfo }
+const restricted = (req, res, next) => {
+ console.log(req.headers.authorization)
+}
+
+const generateToken = (user) => {
+    const payload = {
+        subject: user.id,
+        username: user.username
+    }
+    const options ={
+        expiresIn: "1d"
+    }
+    return jwt.sign(payload, secret, options)
+}
+
+module.exports = { checkUserInfo, restricted, generateToken }
